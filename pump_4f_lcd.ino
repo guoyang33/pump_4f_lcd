@@ -1,6 +1,13 @@
-#include <Arduino.h>
-#include <Wire.h>
-#include <LiquidCrystal_PCF8574.h>
+#include <TimeLib.h>
+
+#include <Bonezegei_LCD1602_I2C.h>
+
+const int timerInitial = (4 * 60 + 30) * 60 * 1000;   // 4:30:00
+const int timerMax = 9 * 60 * 60 * 1000;              // 9:00:00
+const int timerMin = 30 * 60 * 1000;                  // 0:30:00
+const int timerDelta = 30 * 60 * 1000;                // 0:30:00
+const float rotationMid = 1 / 2;                      // Half
+const float rotationStep = 1 / 20;                    // 20 Steps
 
 /* Pin */
 const int LED_PIN = 10;
@@ -46,9 +53,7 @@ void setup() {
   pinMode(PUMP_RELAY, OUTPUT);
 
   Serial.begin(9600);
-  
-  /* ROTATION SENSOR: READ */
-  rotation = analogRead(ROTATION_SENSOR);
+ 
   /* LCD: SHOW HELLO and BUTTON and ROTATION SENSOR status */
   /* ... */
   Serial.print("B: ");
