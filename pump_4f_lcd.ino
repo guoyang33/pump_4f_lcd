@@ -1,6 +1,12 @@
+#include <LiquidCrystal_I2C.h>
+
 #include <TimeLib.h>
 
-#include <Bonezegei_LCD1602_I2C.h>
+/* Pin */
+const int LED_PIN = 10;
+const int BUTTON_PIN = 11;
+const int ROTATION_SENSOR = A0;
+const int PUMP_RELAY = 9;
 
 const int timerInitial = (4 * 60 + 30) * 60 * 1000;   // 4:30:00
 const int timerMax = 9 * 60 * 60 * 1000;              // 9:00:00
@@ -8,12 +14,6 @@ const int timerMin = 30 * 60 * 1000;                  // 0:30:00
 const int timerDelta = 30 * 60 * 1000;                // 0:30:00
 const float rotationMid = 1 / 2;                      // Half
 const float rotationStep = 1 / 20;                    // 20 Steps
-
-/* Pin */
-const int LED_PIN = 10;
-const int BUTTON_PIN = 11;
-const int ROTATION_SENSOR = A0;
-const int PUMP_RELAY = 9;
 
 bool isButtonDown() {
   /*
@@ -52,14 +52,23 @@ void setup() {
   pinMode(ROTATION_SENSOR, INPUT);
   pinMode(PUMP_RELAY, OUTPUT);
 
+  lcd.begin();
+
   Serial.begin(9600);
  
   /* LCD: SHOW HELLO and BUTTON and ROTATION SENSOR status */
-  /* ... */
-  Serial.print("B: ");
-  Serial.print(isButtonDown());
-  Serial.print("\tR: ");
-  Serial.println(rotationRead());
+  lcd.print("HOLA 4F PUMP LCD");
+  String str = "";
+  if (isButtonDown()) {
+    str += "B:D R:";
+  } else {
+    str += "B:U R:";
+  }
+  str += rotationRead();
+  lcd.setPosition(0, 1);
+  Serial.print(str);
+//  lcd.print(String(str));
+
   /* LED: TEST ON */
   ledOn();
   /* PUMP RELAY: TEST ON */
