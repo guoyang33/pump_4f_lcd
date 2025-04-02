@@ -2,18 +2,22 @@
 
 #include <TimeLib.h>
 
+/* LCD */
+/* set the LCD address */
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
 /* Pin */
 const int LED_PIN = 10;
 const int BUTTON_PIN = 11;
 const int ROTATION_SENSOR = A0;
 const int PUMP_RELAY = 9;
 
-const int timerInitial = (4 * 60 + 30) * 60 * 1000;   // 4:30:00
-const int timerMax = 9 * 60 * 60 * 1000;              // 9:00:00
-const int timerMin = 30 * 60 * 1000;                  // 0:30:00
-const int timerDelta = 30 * 60 * 1000;                // 0:30:00
-const float rotationMid = 1 / 2;                      // Half
-const float rotationStep = 1 / 20;                    // 20 Steps
+const int timerInitial    = 16200000;   // 4:30:00  = 4*60*60*1000 + 30*60*1000 = 16200000
+const int timerMax        = 32400000;   // 9:00:00  = 9 * 60 * 60 * 1000        = 32400000
+const int timerMin        = 1800000;    // 0:30:00  = 30 * 60 * 1000            = 1800000
+const int timerDelta      = 1800000;    // 0:30:00  = 30 * 60 * 1000            = 1800000
+const float rotationMid   = 0.5;        // Half     = 1 / 2                     = 0.5
+const float rotationStep  = 0.05;       // 20 Steps = 1 / 20                    = 0.05
 
 bool isButtonDown() {
   /*
@@ -52,12 +56,13 @@ void setup() {
   pinMode(ROTATION_SENSOR, INPUT);
   pinMode(PUMP_RELAY, OUTPUT);
 
-  lcd.begin();
-
   Serial.begin(9600);
  
   /* LCD: SHOW HELLO and BUTTON and ROTATION SENSOR status */
-  lcd.print("HOLA 4F PUMP LCD");
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("HOLA PUMP 4F LCD");
   String str = "";
   if (isButtonDown()) {
     str += "B:D R:";
@@ -65,9 +70,9 @@ void setup() {
     str += "B:U R:";
   }
   str += rotationRead();
-  lcd.setPosition(0, 1);
-  Serial.print(str);
-//  lcd.print(String(str));
+  Serial.println(str);
+  lcd.setCursor(0, 1);
+  lcd.print(String(str));
 
   /* LED: TEST ON */
   ledOn();
