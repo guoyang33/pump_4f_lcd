@@ -77,20 +77,20 @@ void setup() {
   lcd.setCursor(0, 0);
   lcd.print("HOLA PUMP 4F LCD");
   String str = "";
-  if (isButtonDown()) {
+  if (is_button_down()) {
     str += "B:D R:";
   } else {
     str += "B:U R:";
   }
-  str += rotationRead();
+  str += rotation_read();
   Serial.println(str);
   lcd.setCursor(0, 1);
   lcd.print(String(str));
 
   /* LED: TEST ON */
-  ledOn();
+  led_on();
   /* PUMP RELAY: TEST ON */
-  pumpOn();
+  pump_on();
   
   delay(initDuration);
 
@@ -101,11 +101,11 @@ void setup() {
   }
 
   /* LED: TEST OFF */
-  ledOff();
+  led_off();
   /* PUMP RELAY: TEST OFF */
-  pumpOff();
+  pump_off();
   /* LCD: Clear output */
-  lcdClear();
+  lcd_clear();
 }
 
 void loop() {
