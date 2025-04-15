@@ -22,15 +22,18 @@ const int BUTTON_PIN = 11;
 const int ROTATION_SENSOR = A0;
 const int PUMP_RELAY = 9;
 
-const int timerDefault    = 16200000;   // 4:30:00  = 4*60*60*1000 + 30*60*1000 = 16200000
-const int timerMax        = 32400000;   // 9:00:00  = 9 * 60 * 60 * 1000        = 32400000
-const int timerMin        = 1800000;    // 0:30:00  = 30 * 60 * 1000            = 1800000
-const int timerDelta      = 1800000;    // 0:30:00  = 30 * 60 * 1000            = 1800000
-const float rotationMid   = 0.5;        // Half     = 1 / 2                     = 0.5
-const float rotationStep  = 0.05;       // 20 Steps = 1 / 20                    = 0.05
-const int pumpDuration    = 1800000;    // 0:30:00  = 30 * 60 * 1000            = 1800000
-const int initDuration    = 3000;       // 0:00:03  = 3 * 1000                  = 3000
-const int initButtonDownErrorDuration = 300000; // 0:05:00 = 5 * 60 * 1000      = 300000
+const int timerDefault    = 16200000;             // 4:30:00  = (4 * 60 + 30) * 60 * 1000     = 16200000
+const int timerMax        = 32400000;             // 9:00:00  = 9 * 60 * 60 * 1000            = 32400000
+const int timerMin        = 1800000;              // 0:30:00  = 30 * 60 * 1000                = 1800000
+const int timerDelta      = 1800000;              // 0:30:00  = 30 * 60 * 1000                = 1800000
+const float rotationMid   = 0.5;                  // Half     = 1 / 2                         = 0.5
+const float rotationStep  = 0.05;                 // 20 Steps = 1 / 20                        = 0.05
+const int pumpDuration    = 1800000;              // 0:30:00  = 30 * 60 * 1000                = 1800000
+const int initDuration    = 3000;                 // 0:00:03  = 3 * 1000                      = 3000
+const int initButtonDownErrorDuration = 300000;   // 0:05:00 = 5 * 60 * 1000                  = 300000
+
+bool pumpIsOn = false;
+int pumpTimer = 0;
 
 bool is_button_down() {
   /*
@@ -57,10 +60,18 @@ void led_off() {
 }
 
 void pump_on() {
-  digitalWrite(PUMP_RELAY, HIGH);
+  if (!pumpIsOn) {
+    pumpIsOn = true;
+    led_on();
+    digitalWrite(PUMP_RELAY, HIGH);
+  }
 }
 void pump_off() {
-  digitalWrite(PUMP_RELAY, LOW);
+  if (pumpIsOn) {
+    pumpIsOn = false;
+    led_off();
+    digitalWrite(PUMP_RELAY, LOW); 
+  }
 }
 
 void setup() {
@@ -87,29 +98,13 @@ void setup() {
   lcd.setCursor(0, 1);
   lcd.print(String(str));
 
-  /* LED: TEST ON */
-  led_on();
   /* PUMP RELAY: TEST ON */
   pump_on();
-  
-  delay(initDuration);
 
-  while (is_button_down()) {
-    if (millis() >= initDuration + initButtonDownErrorDuration) {
-      
-    }
-  }
-
-  /* LED: TEST OFF */
-  led_off();
-  /* PUMP RELAY: TEST OFF */
-  pump_off();
   /* LCD: Clear output */
   lcd_clear();
 }
 
 void loop() {
-  /* 計時器 */
-  int timer = 0;
   
 }
