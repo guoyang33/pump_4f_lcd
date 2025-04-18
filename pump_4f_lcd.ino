@@ -10,17 +10,24 @@
  */
 #include <LiquidCrystal_I2C.h>
 
-#include <TimeLib.h>
-
 /* LCD */
 /* set the LCD address */
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-/* Pin */
-const int LED_PIN = 10;
-const int BUTTON_PIN = 11;
-const int ROTATION_SENSOR = A0;
-const int PUMP_RELAY = 9;
+// Constants
+//  Pins
+//    Output: LED 燈號模組
+const int LED_PIN               = 10;
+//    Input: 鈕扣按鈕模組
+const int BUTTON_PIN            = 11;
+//    Input: 旋鈕 轉度感測模組
+const int ROTATION_SENSOR_PIN   = A0;
+//    Output: 抽水泵浦 繼電器模組
+const int PUMP_RELAY_PIN        = 9;
+
+//  Variables
+//    轉度感測模組透過類比訊號接收到的最大值
+const int ROTATION_SENSOR_MAX = 1023;
 
 const int timerDefault    = 16200000;             // 4:30:00  = (4 * 60 + 30) * 60 * 1000     = 16200000
 const int timerMax        = 32400000;             // 9:00:00  = 9 * 60 * 60 * 1000            = 32400000
