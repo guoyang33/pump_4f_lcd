@@ -116,7 +116,8 @@ int calc_pump_interval() {
 }
 
 void lcd_print_setting() {
-  lcd.setCursor(
+  lcd.setCursor(8, 0);
+  lcd.print(
 }
 
 void setup() {
