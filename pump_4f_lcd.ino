@@ -112,7 +112,11 @@ int calc_rotation_step() {
 }
 
 int calc_pump_interval() {
-  return pumpIntervalDefault + (calc_rotation_step() * INTERVAL_DELTA);
+  return INTERVAL_DEFAULT + (calc_rotation_step() * INTERVAL_DELTA);
+}
+
+void lcd_print_setting() {
+  lcd.setCursor(
 }
 
 void setup() {
@@ -124,6 +128,11 @@ void setup() {
   Serial.begin(9600);
  
   lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("SET:");
+  lcd.setCursor(0, 1);
+  lcd.print("ETA:");
 
   pumpInterval = INTERVAL_DEFAULT;
 }
@@ -152,4 +161,5 @@ void loop() {
     }
   }
   pumpInterval = calc_pump_interval();
+  
 }
