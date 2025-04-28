@@ -117,7 +117,7 @@ int calc_pump_interval() {
 
 void lcd_print_setting() {
   lcd.setCursor(8, 0);
-  lcd.print(
+  lcd.print(pumpInterval
 }
 
 void setup() {
@@ -130,10 +130,10 @@ void setup() {
  
   lcd.init();
   lcd.backlight();
-  lcd.setCursor(0, 0);
-  lcd.print("SET:");
-  lcd.setCursor(0, 1);
-  lcd.print("ETA:");
+  lcd.setCursor(4, 0);
+  lcd.print("SET=");
+  lcd.setCursor(4, 1);
+  lcd.print("ETA=");
 
   pumpInterval = INTERVAL_DEFAULT;
 }
