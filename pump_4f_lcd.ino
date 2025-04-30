@@ -4,7 +4,11 @@
  * changelog:
  *  2025-04-14
  *    取消使用可調泵浦啟用時間，因為只有一個旋鈕，所以會需要使用記憶體來儲存該設定值，結果就是會在不穩定的電源供應下自動回朔，即不實用功能。
- *    之後若有需要對砅浦啟用時間進行調整得在程式碼中設定再燒錄進 Arduino。
+ *    之後若有需要對泵浦啟用時間進行調整得在程式碼中設定再燒錄進 Arduino。
+ *  2025-04-30
+ *    待改問題：
+ *      pumpInterval要跟顯示的 (ETA) 分開計算
+ *      ETA 還沒有顯示泵浦的通電剩餘時間
  */
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
@@ -57,7 +61,7 @@ const int initDuration    = 3000;                 // 0:00:03  = 3 * 1000        
 unsigned long previousMillis = 0;
 
 bool pumpIsOn = false;
-int pumpInterval;
+long pumpInterval;
 
 bool is_button_down() {
   /*
@@ -68,18 +72,6 @@ bool is_button_down() {
     return true;
   }
   return false;
-}
-
-const int INIT_CODE_ERROR         = 0;
-const int INIT_CODE_OK            = 1;
-const int INIT_CODE_BUTTON_ERROR  = 2;
-int main_init() {
-  
-  return INIT_CODE_ERROR;
-}
-
-int rotation_read() {
-  return analogRead(ROTATION_SENSOR_PIN);
 }
 
 void led_on() {
@@ -104,14 +96,29 @@ void pump_off() {
   }
 }
 
-int calc_rotation_standardize() {
-  return rotation_read() / ROTATION_SENSOR_MAX;
+int rotation_read() {
+  return analogRead(ROTATION_SENSOR_PIN);
+}
+float calc_rotation_standardize() {
+  Serial.println("call: calc_rotation_standardize");
+  Serial.println(rotation_read());
+  float rotationNormalize = (float)rotation_read() / ROTATION_SENSOR_MAX;
+  Serial.println(rotationNormalize);
+  return rotationNormalize;
 }
 int calc_rotation_step() {
-  return (calc_rotation_standardize() / ROTATION_STEP) - ROTATION_MID;
+  Serial.println((calc_rotation_standardize() - ROTATION_MID) / ROTATION_STEP);
+  return (calc_rotation_standardize() - ROTATION_MID) / ROTATION_STEP;
 }
-int calc_pump_interval() {
-  return INTERVAL_DEFAULT + (calc_rotation_step() * INTERVAL_DELTA);
+long calc_pump_interval() {
+  long pumpInterval = INTERVAL_DEFAULT + (calc_rotation_step() * INTERVAL_DELTA);
+  if (pumpInterval > INTERVAL_MAX) {
+    return INTERVAL_MAX;
+  }
+  if (pumpInterval < INTERVAL_MIN) {
+    return INTERVAL_MIN;
+  }
+  return pumpInterval;
 }
 
 void lcd_print_time(long t) {
@@ -133,7 +140,7 @@ void lcd_print_setting() {
   lcd.setCursor(8, 0);
   lcd_print_time(pumpInterval);
 }
-void lcd_print_eta(int eta) {
+void lcd_print_eta(long eta) {
   lcd.setCursor(8, 1);
   lcd_print_time(eta);
 }
@@ -145,7 +152,7 @@ void setup() {
   pinMode(PUMP_RELAY_PIN, OUTPUT);
 
   Serial.begin(9600);
-  Serial.println("setup: serial initialized");
+  Serial.println("setup: Serial initialized");
  
   lcd.init();
   lcd.backlight();
@@ -160,32 +167,37 @@ void setup() {
 
 void loop() {
   unsigned long currentMillis = millis();
-  Serial.println("Current Millis: " + currentMillis);
-  Serial.println("Previous Millis: " + previousMillis);
+
+  long duration = currentMillis - previousMillis;
+  Serial.println(duration);
+  
   if (pumpIsOn) {
-    if (currentMillis - previousMillis >= PUMP_DURATION) {
-      pump_off();
-      previousMillis = millis();
-    }
     if (is_button_down()) {
-      while (is_button_down()) {}
-      pump_off();
-      previousMillis = millis();
+        while (is_button_down()) {}
+        pump_off();
+        previousMillis = millis();
+    } else {
+      if (duration >= pumpInterval + PUMP_DURATION) {
+        pump_off();
+        previousMillis = millis();
+      }
     }
   } else {
-    if (currentMillis - previousMillis >= pumpInterval) {
-      pump_on();
-      previousMillis = millis();
-    }
     if (is_button_down()) {
       while (is_button_down()) {}
       pump_on();
+      pumpInterval = calc_pump_interval();
+      Serial.println(pumpInterval);
       previousMillis = millis();
+    } else {
+      if (duration >= pumpInterval) {
+        pump_on();
+        pumpInterval = calc_pump_interval();
+        Serial.println(pumpInterval);
+      }  
     }
   }
-  pumpInterval = calc_pump_interval();
-  Serial.println("pump interval: " + pumpInterval);
   
   lcd_print_setting();
-  lcd_print_eta(pumpInterval - (currentMillis - previousMillis));
+  lcd_print_eta(pumpInterval - duration);
 }
