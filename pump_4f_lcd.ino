@@ -138,7 +138,7 @@ void lcd_print_time(long t) {
 }
 void lcd_print_setting() {
   lcd.setCursor(8, 0);
-  lcd_print_time(pumpInterval);
+  lcd_print_time(calc_pump_interval());
 }
 void lcd_print_eta(long eta) {
   lcd.setCursor(8, 1);
@@ -162,42 +162,47 @@ void setup() {
   lcd.setCursor(4, 1);
   lcd.print("ETA=");
 
-  pumpInterval = INTERVAL_DEFAULT;
+  pumpInterval = calc_pump_interval();
 }
 
 void loop() {
   unsigned long currentMillis = millis();
-
   long duration = currentMillis - previousMillis;
   Serial.println(duration);
   
   if (pumpIsOn) {
+    pumpInterval = calc_pump_interval();
+    
     if (is_button_down()) {
         while (is_button_down()) {}
         pump_off();
         previousMillis = millis();
     } else {
-      if (duration >= pumpInterval + PUMP_DURATION) {
+      if (duration >= PUMP_DURATION) {
         pump_off();
         previousMillis = millis();
       }
     }
+    
+    lcd_print_eta(PUMP_DURATION - duration);
+    
   } else {
     if (is_button_down()) {
       while (is_button_down()) {}
       pump_on();
-      pumpInterval = calc_pump_interval();
       Serial.println(pumpInterval);
       previousMillis = millis();
+      
     } else {
       if (duration >= pumpInterval) {
         pump_on();
-        pumpInterval = calc_pump_interval();
         Serial.println(pumpInterval);
+        previousMillis = millis();
       }  
     }
+  
+    lcd_print_eta(pumpInterval - duration);
   }
   
   lcd_print_setting();
-  lcd_print_eta(pumpInterval - duration);
 }
