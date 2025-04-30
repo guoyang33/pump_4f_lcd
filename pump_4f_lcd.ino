@@ -43,23 +43,10 @@ const long INTERVAL_MAX = 32400000;
 const long INTERVAL_MIN = 1800000;
 //    間隔時間單位轉度變化量  先設為 0:30:00 
 const long INTERVAL_DELTA = 1800000;
-//   泵浦抽水時間            0:30:00
-const long PUMP_DURATION = 1800000;
-
-const int intervalDefault = 16200000;
-const int intervalMax = 32400000;
-const int intervalMin = 1800000;
-const int timerDefault    = 16200000;             // 4:30:00  = (4 * 60 + 30) * 60 * 1000     = 16200000
-const int timerMax        = 32400000;             // 9:00:00  = 9 * 60 * 60 * 1000            = 32400000
-const int timerMin        = 1800000;              // 0:30:00  = 30 * 60 * 1000                = 1800000
-const int timerDelta      = 1800000;              // 0:30:00  = 30 * 60 * 1000                = 1800000
-const float rotationMid   = 0.5;                  // Half     = 1 / 2                         = 0.5
-const float rotationStep  = 0.05;                 // 20 Steps = 1 / 20                        = 0.05
-const int pumpDuration    = 1800000;              // 0:30:00  = 30 * 60 * 1000                = 1800000
-const int initDuration    = 3000;                 // 0:00:03  = 3 * 1000                      = 3000
+//   泵浦抽水時間            0:02:00 = 2 * 60 * 1000 = 120000
+const long PUMP_DURATION = 120000;
 
 unsigned long previousMillis = 0;
-
 bool pumpIsOn = false;
 long pumpInterval;
 
